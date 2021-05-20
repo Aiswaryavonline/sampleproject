@@ -1,0 +1,188 @@
+<script>
+	function showMore() {
+		var x = document.getElementById("readMore");
+		var mb = document.getElementById("moreButton");
+		if (x.style.display === "block") {
+			x.style.display = "none";
+			mb.style.display = "block";
+		} else {
+			x.style.display = "block";
+			mb.style.display = "none";
+		}
+	}
+
+    function showLess() {
+        var y = document.getElementById("readMore");
+        var mb = document.getElementById("moreButton");
+        if (y.style.display === "none") {
+            y.style.display = "block";
+            mb.style.display = "none";
+        } else {
+            y.style.display = "none";
+            mb.style.display = "block";
+        }
+    }
+    
+    /*-- Contact Page - Open/Closed --*/
+//To Format date in mm/dd/yyyy
+function formatDateString(toDate) {
+  let dd 				  = toDate.getDate();
+  let mm 				  = toDate.getMonth()+1; 
+  let yyyy 			  = toDate.getFullYear();
+  if(dd<10) 
+  {
+  	dd				  = '0'+dd;
+  } 
+  
+  if(mm<10) 
+  {
+  	mm      		  ='0'+mm;
+  } 
+  return dateFormat     = mm+'/'+dd+'/'+yyyy;
+  
+  }
+  // To get the current indian time
+  function getCurrentIndainDateTime(){
+  
+  d 						=  new Date();
+  utc 					=  d.getTime() + (d.getTimezoneOffset() * 60000);
+  nd 						=  new Date(utc + (3600000*+5.5));
+  let ist 				=  nd.toLocaleString();
+  return nd;
+  }
+  
+ /*
+ *   Function get the shop Open/Close status in Contact US page
+*/ 
+function showStatus() {
+	    // To get the current indian time
+	dateTime 				=  getCurrentIndainDateTime();
+	let date 				=  new Date(dateTime);
+	let day 				=  date.getDate(); //Date of the month: 2 
+	let weekDay 			=  date.getDay(); //day : 2 (0-6, 0->sunday ,1->monday)
+	let month 			    =  date.getMonth()+1; //Month : 0-based index,(0-> jan,1->feb)
+	let year 				=  date.getFullYear(); //Year: 2020
+	
+		
+    let days 				= ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday" ];
+    let dayOfTheWeek 		= days[date.getUTCDay()];
+	let indiaDate           = formatDateString(dateTime);//To get india date mm/dd/yyyy  to all browser
+
+	//console.log("DateTime : " +dateTime);console.log("Date In india : " +indiaDate);console.log("dayOfTheWeek : " +dayOfTheWeek);
+
+	
+	// Holiday array
+	let holidays 			= document.getElementById('holidaytList').innerText;//holidays List in mm/dd/yyyy format
+	let arrayHoliday 	    = holidays.split(",");
+	foramtIndianDate 		= new Date(indiaDate); console.log(foramtIndianDate);
+	let status;
+	
+	for(var i=0; i<arrayHoliday.length; i++){ 
+		formatHolidayDate	    = new Date(arrayHoliday[i]);
+			if(foramtIndianDate.getTime() == formatHolidayDate.getTime()){ 
+			  status 			= 'Exists'; break;
+			}
+	}
+	
+    if(dayOfTheWeek=="Sunday")
+	{//Checking Holidays
+		let span 				= document.getElementById("ClosedStatus");
+		span.textContent 		= "Closed";
+	}else if(status=="Exists"){//If ist date  is listed in holidays array 
+		let span 				= document.getElementById("ClosedStatus");
+		span.textContent   		= "Closed,its holiday";
+	}else{ 
+		var mOpenTime    		= timeConvertor(document.getElementById('mOpenTime').innerText);
+		var mCloseTime   		= timeConvertor(document.getElementById('mCloseTime').innerText);
+        console.log("mOpenTime"+mOpenTime);
+        console.log("mCloseTime"+mCloseTime);
+		currentDate      		= new Date(dateTime) ;//passing indian date & time  
+
+		startDate        		= new Date(currentDate.getTime()); 
+		startDate.setHours(mOpenTime.split(":")[0]);
+		startDate.setMinutes(mOpenTime.split(":")[1]);//startDate.setSeconds(mOpenTime.split(":")[2]);console.log(mOpenTime.split(":")[1]);
+
+		endDate         		= new Date(currentDate.getTime());
+		endDate.setHours(mCloseTime.split(":")[0]);
+		endDate.setMinutes(mCloseTime.split(":")[1]);
+
+
+		valid 					= startDate < currentDate && endDate > currentDate;
+
+        if(valid){
+			var span 		 	= document.getElementById("openStatus");
+			span.textContent 	= "Open";
+		}else{ 
+			var aOpenTime    	 = timeConvertor(document.getElementById('aOpenTime').innerText);
+			var aCloseTime   	 = timeConvertor(document.getElementById('aCloseTime').innerText);
+
+			currentDate          = new Date(dateTime) ;//passing indian date & time  
+
+			startDate            = new Date(currentDate.getTime()); 
+			startDate.setHours(aOpenTime.split(":")[0]);
+			startDate.setMinutes(aOpenTime.split(":")[1]);//startDate.setSeconds(mOpenTime.split(":")[2]);console.log(mOpenTime.split(":")[1]);
+
+			endDate              = new Date(currentDate.getTime());
+			endDate.setHours(aCloseTime.split(":")[0]);
+			endDate.setMinutes(aCloseTime.split(":")[1]);
+
+
+			valid 				 = startDate < currentDate && endDate > currentDate;
+			if(valid){
+				
+				var span = document.getElementById("openStatus");
+				span.textContent = "Open";
+			}else{
+				var span = document.getElementById("ClosedStatus");
+				span.textContent = "Closed";
+			}
+
+        }
+		
+	}
+}
+document.addEventListener("DOMContentLoaded", function() { showStatus(); });
+document.addEventListener("DOMContentLoaded", function() { currentTime(); });
+
+//Function to convert 12 Hr to 24 hr
+function timeConvertor(time) {
+    var PM 				= time.match('PM') ? true : false
+    console.log("PM"+PM);
+    console.log("time"+time);
+    time 		        = time.split(':')
+    var min 	        = time[1]
+    
+    if (PM) {
+        var hour 		= 12 + parseInt(time[0],10)
+        var min 		= time[1].replace(' PM', '');
+    } else {
+        var hour 		= time[0]
+        var min  		= time[1].replace(' AM', '') ;   
+    }
+	time24				= hour+':'+min;console.log(time24);
+	return time24.trim();
+}
+function currentTime() {
+  dateTime 				=  getCurrentIndainDateTime();
+  let d 					=  new Date(dateTime);
+  let hour 				=  d.getHours();
+  let min 				=  d.getMinutes();
+  let sec 				=  d.getSeconds();
+  hour					=  updateTime(hour);
+  min 					=  updateTime(min);
+  sec 					=  updateTime(sec);
+  let midday 			    =  "AM";
+  midday 				    =  (hour >= 12) ? "PM" : "AM";
+  document.getElementById("clock").innerText = hour + " : " + min + " : " + sec + " "+ midday; /* adding india time to the div */
+  let t 				    =  setTimeout(function(){ currentTime() }, 1000); /* setting timer */
+  }
+  
+  function updateTime(k) {
+  if (k < 10) {
+  	return "0" + k;
+  }else {
+  	return k;
+  }
+  }
+   
+</script>
